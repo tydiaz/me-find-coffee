@@ -1,0 +1,29 @@
+[
+  {
+    "id": 0,
+    "name": "Key West Cuban Cafe",
+    "imageUrl": "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80",
+    "websiteUrl": "http://key-west-cuban-cafe.edan.io/",
+    "address": "599 N Federal Highway, Pompano Beach, Fl, 33062",
+    "neighbourhood": "N Federal Hwy & NE 6th St",
+    "phoneNumber": "(305)989-8246"
+  },
+  {
+    "id": 1,
+    "name": "The Modern Rose",
+    "imageUrl": "https://images.unsplash.com/photo-1498804103079-a6351b050096?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2468&q=80",
+    "websiteUrl": "https://www.themodernrose.com/",
+    "address": "331 SE 15th Ter, Deerfield Beach, Fl, 33441",
+    "neighbourhood": "The Cove Shopping Center",
+    "phoneNumber": "(954)405-8448"
+  },
+  {
+    "id": 4444,
+    "name": "Carmela Coffee",
+    "imageUrl": "https://images.unsplash.com/photo-1498804103079-a6351b050096?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2468&q=80",
+    "websiteUrl": "https://www.carmelacoffee.com/",
+    "address": "1182 Powerline Rd, Pompano Beach, Fl, 33069",
+    "neighbourhood": "Powerline Rd & Gateway Dr",
+    "phoneNumber": "(954)-366-1118"
+  }
+]

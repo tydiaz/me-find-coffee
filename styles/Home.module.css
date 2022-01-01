@@ -17,37 +17,56 @@
   position: absolute;
   top: 0px;
   z-index: 1;
-  right: 10%;
+  /* right: 10%; Not sure yet */
+}
+
+.cardLayout {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 1.5rem;
+}
+
+.card {
+  justify-content: center;
 }
 
 @media (min-width: 640px) {
   .container {
-    padding-left: 1rem;
+    padding-left: 1rem; /* 16px */
     padding-right: 1rem;
   }
 
   .main {
-    margin-top: 3rem;
-    padding-left: 1.5rem;
+    margin-top: 3rem; /* 48px */
+    padding-left: 1.5rem; /* 24px */
     padding-right: 1.5rem;
   }
   /* .heroImage {
     right: 30%;
   } */
+
+  .cardLayout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 768px) {
   .container {
-    padding-left: 2.5rem;
+    padding-left: 2.5rem; /* 40px */
     padding-right: 2.5rem;
   }
 
   .main {
-    margin-top: 4rem;
+    margin-top: 4rem; /* 64 px */
   }
 
   .heroImage {
     right: 20%;
+  }
+
+  .cardLayout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -58,18 +77,26 @@
   }
 
   .main {
-    padding-left: 2rem;
+    padding-left: 2rem; /* 32px */
     padding-right: 2rem;
-    margin-top: 5rem;
+    margin-top: 5rem; /* 80px */
   }
 
   .heroImage {
     right: 20%;
   }
+
+  .cardLayout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1280px) {
   .main {
-    margin-top: 7rem;
+    margin-top: 7rem; /* 112px */
+  }
+
+  .cardLayout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

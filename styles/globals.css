@@ -56,3 +56,17 @@ button:focus {
   outline: 1px dotted;
   outline: 5px auto -webkit-focus-ring-color;
 }
+
+/** glass morphism designed on 
+https://hype4.academy/tools/glassmorphism-generator **/
+.glass {
+  border: 1px solid #fff hsla(0, 0%, 100%, 0.2);
+  background: hsla(0, 0%, 100%, 0.4);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.glass:hover {
+  border: 1px solid #fff;
+  background: hsla(0, 0%, 100%, 0.7);
+}
