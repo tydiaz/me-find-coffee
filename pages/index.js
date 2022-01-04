@@ -2,13 +2,34 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Banner from '../components/banner/banner';
 import Card from '../components/card/card';
+import useGeoLocation from '../hooks/useGeoLocation';
+import { fetchCoffeeShops } from '../lib/coffee-shops';
 import styles from '../styles/Home.module.css';
-import coffeeShops from '../data/coffee-shops.json';
+// import coffeeShopsData from '../data/coffee-shops.json';
 
-export default function Home() {
+export async function getStaticProps(context) {
+  const coffeeShops = await fetchCoffeeShops();
+  return {
+    props: {
+      coffeeShops,
+    },
+  };
+}
+
+export default function Home(props) {
+  console.log('props:', props);
+  const { coordinates, handleGeoLocation, isLoading, locationErrorMessage } =
+    useGeoLocation();
+
+  console.log({ coordinates, locationErrorMessage });
+
   const onBannerBtnClick = () => {
     console.log('banner button');
+    handleGeoLocation();
   };
+  let imgUrl =
+    'https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80';
+
   return (
     <div className={styles.container}>
       <Head>
@@ -20,9 +41,12 @@ export default function Home() {
 
       <main className={styles.main}>
         <Banner
-          buttonText='Find shops near me'
+          buttonText={isLoading ? 'Locating...' : 'Find shops near me'}
           handleOnClick={onBannerBtnClick}
         />
+        {locationErrorMessage && (
+          <p>Something went wrong: {locationErrorMessage}</p>
+        )}
         <div className={styles.heroImage}>
           <Image
             src='/static/hero-image.png'
@@ -31,19 +55,24 @@ export default function Home() {
             height={300}
           />
         </div>
-        <div className={styles.cardLayout}>
-          {coffeeShops.map((coffeeShop) => {
-            return (
-              <Card
-                name={coffeeShop.name}
-                key={coffeeShop.id}
-                href={`/coffee-shop/${coffeeShop.id}`}
-                imageUrl={coffeeShop.imageUrl}
-                className={styles.card}
-              />
-            );
-          })}
-        </div>
+        {props.coffeeShops.length > 0 && (
+          <div className={styles.sectionWrapper}>
+            <h2 className={styles.header}>Pompano Beach Coffee Shops</h2>
+            <div className={styles.cardLayout}>
+              {props.coffeeShops.map((coffeeShop) => {
+                return (
+                  <Card
+                    name={coffeeShop.name}
+                    key={coffeeShop.id}
+                    href={`/coffee-shop/${coffeeShop.id}`}
+                    imageUrl={coffeeShop.imageUrl || imgUrl}
+                    className={styles.card}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
