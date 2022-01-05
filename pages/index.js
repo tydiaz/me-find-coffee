@@ -1,7 +1,9 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import Banner from '../components/banner/banner';
+import { useContext, useEffect, useState } from 'react';
 import Card from '../components/card/card';
+import Banner from '../components/banner/banner';
+import { ACTION_TYPES, StoreContext } from '../store/store-context';
 import useGeoLocation from '../hooks/useGeoLocation';
 import { fetchCoffeeShops } from '../lib/coffee-shops';
 import styles from '../styles/Home.module.css';
@@ -18,10 +20,37 @@ export async function getStaticProps(context) {
 
 export default function Home(props) {
   console.log('props:', props);
-  const { coordinates, handleGeoLocation, isLoading, locationErrorMessage } =
+  // const [coffeeShops, setCoffeeShops] = useState('');
+  const [errorMessage, setErrorMessage] = useState(null);
+  const { dispatch, state } = useContext(StoreContext);
+  const { coffeeShops, coordinates } = state;
+  const { handleGeoLocation, isLoading, locationErrorMessage } =
     useGeoLocation();
 
   console.log({ coordinates, locationErrorMessage });
+
+  useEffect(() => {
+    async function getCoffeeShops() {
+      if (coordinates) {
+        try {
+          const fetchedCoffeeShops = await fetchCoffeeShops(coordinates, 10);
+
+          console.log({ fetchedCoffeeShops });
+          // setCoffeeShops(fetchedCoffeeShops);
+          dispatch({
+            type: ACTION_TYPES.SET_COFFEE_SHOPS,
+            payload: {
+              coffeeShops: fetchedCoffeeShops,
+            },
+          });
+        } catch (error) {
+          console.log({ error });
+          setErrorMessage(error.message);
+        }
+      }
+    }
+    getCoffeeShops();
+  }, [coordinates, dispatch]);
 
   const onBannerBtnClick = () => {
     console.log('banner button');
@@ -47,6 +76,7 @@ export default function Home(props) {
         {locationErrorMessage && (
           <p>Something went wrong: {locationErrorMessage}</p>
         )}
+        {errorMessage && <p>Something went wrong: {errorMessage}</p>}
         <div className={styles.heroImage}>
           <Image
             src='/static/hero-image.png'
@@ -55,6 +85,24 @@ export default function Home(props) {
             height={300}
           />
         </div>
+        {coffeeShops.length > 0 && (
+          <div className={styles.sectionWrapper}>
+            <h2 className={styles.header}>Coffee Shops near me</h2>
+            <div className={styles.cardLayout}>
+              {coffeeShops.map((coffeeShop) => {
+                return (
+                  <Card
+                    name={coffeeShop.name}
+                    key={coffeeShop.id}
+                    href={`/coffee-shop/${coffeeShop.id}`}
+                    imageUrl={coffeeShop.imageUrl || imgUrl}
+                    className={styles.card}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
         {props.coffeeShops.length > 0 && (
           <div className={styles.sectionWrapper}>
             <h2 className={styles.header}>Pompano Beach Coffee Shops</h2>
