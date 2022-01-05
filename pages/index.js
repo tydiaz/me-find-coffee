@@ -33,16 +33,19 @@ export default function Home(props) {
     async function getCoffeeShops() {
       if (coordinates) {
         try {
-          const fetchedCoffeeShops = await fetchCoffeeShops(coordinates, 10);
+          const coffeeShopsApi = `/api/getCoffeeShopsByLocation?coords=${coordinates}&limit=30`;
+          const fetchedCoffeeShops = await fetch(coffeeShopsApi);
+          const coffeeShops = await fetchCoffeeShops.json();
 
           console.log({ fetchedCoffeeShops });
           // setCoffeeShops(fetchedCoffeeShops);
           dispatch({
             type: ACTION_TYPES.SET_COFFEE_SHOPS,
             payload: {
-              coffeeShops: fetchedCoffeeShops,
+              coffeeShops,
             },
           });
+          setErrorMessage('');
         } catch (error) {
           console.log({ error });
           setErrorMessage(error.message);
