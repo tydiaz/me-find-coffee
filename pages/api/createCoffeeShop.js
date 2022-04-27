@@ -1,10 +1,4 @@
-const Airtable = require('airtable');
-
-const base = new Airtable({
-  apiKey: process.env.NEXT_PUBLIC_AIRTABLE_API_KEY,
-}).base(process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID);
-
-const table = base('me-find-coffee');
+import { getMinifiedRecords, table } from '../../lib/airtable';
 
 console.log({ table });
 
@@ -12,29 +6,57 @@ const createCoffeeShop = async (req, res) => {
   console.log({ req });
 
   if (req.method === 'POST') {
+    const { id, name, address, neighborhood, votes, imageUrl } = req.body;
+
     try {
-      const findCoffeeShopRecords = await table
-        .select({
-          filterByFormula: `id=0`,
-        })
-        .firstPage();
+      if (id) {
+        const findCoffeeShopRecords = await table
+          .select({
+            filterByFormula: `id="${id}"`,
+          })
+          .firstPage();
 
-      console.log({ findCoffeeShopRecords });
+        console.log({ findCoffeeShopRecords });
 
-      if (findCoffeeShopRecords.length !== 0) {
-        const records = findCoffeeShopRecords.map((record) => {
-          return {
-            ...record.fields,
-          };
-        });
-        res.json(records);
+        if (findCoffeeShopRecords.length !== 0) {
+          const coffeeShopRecords = getMinifiedRecords(findCoffeeShopRecords);
+
+          res.json(coffeeShopRecords);
+        } else {
+          if (name) {
+            const createCoffeeShopRecords = await table.create([
+              {
+                fields: {
+                  id,
+                  name,
+                  address,
+                  neighborhood,
+                  votes,
+                  imageUrl,
+                },
+              },
+            ]);
+
+            const records = getMinifiedRecords(createCoffeeShopRecords);
+            res.json(records);
+          } else {
+            //res.status(400);
+            // april fools bad request
+            res.status(418);
+            res.json({ message: 'Id or name is missing' });
+          }
+        }
       } else {
-        res.json({ message: 'create a record' });
+        res.status(400);
+        res.json({ message: 'Id is missing' });
       }
     } catch (error) {
-      console.error('Error finding Coffee Shop record:', error);
+      console.error('Error creating and/or finding Coffee Shop record:', error);
       res.status(500);
-      res.json({ message: 'Error Finding Coffee Shop Record!', error });
+      res.json({
+        message: 'error creating and/or finding coffee shop record',
+        error,
+      });
     }
   }
 };

@@ -9,11 +9,14 @@ import { isEmpty } from '../../utils';
 import { fetchCoffeeShops } from '../../lib/coffee-shops';
 import styles from '../../styles/CoffeeShop.module.css';
 
-export async function getStaticProps({ params }) {
+export async function getStaticProps(staticProps) {
+  const params = staticProps.params;
+
   console.log('params', params);
+
   const coffeeShops = await fetchCoffeeShops();
   const findCoffeeShopsById = coffeeShops.find((coffeeShop) => {
-    return coffeeShop.id.toString() === params.pid;
+    return coffeeShop.id.toString() === params.id;
   });
   return {
     props: {
@@ -27,7 +30,7 @@ export async function getStaticPaths() {
   const coffeeShopPaths = coffeeShops.map((coffeeShop) => {
     return {
       params: {
-        pid: coffeeShop.id.toString(),
+        id: coffeeShop.id.toString(),
       },
     };
   });
@@ -40,31 +43,60 @@ export async function getStaticPaths() {
 
 const CoffeeShop = (initialProps) => {
   const router = useRouter();
-  const { pid } = router.query;
+  const id = router.query.id;
 
-  console.log(router.query);
-  console.log(pid);
-  console.log('props', initialProps);
+  // console.log(router.query);
+  // console.log(pid);
+  console.log('props', initialProps.coffeeShop);
 
   const [coffeeShop, setCoffeeShop] = useState(initialProps.coffeeShop);
-
+  // const [coffeeShop, setCoffeeShop] = useState(initialProps.coffeeShop || {});
   const {
     state: { coffeeShops },
   } = useContext(StoreContext);
 
+  const onHandleCreateCoffeeShop = async (coffeeShop) => {
+    try {
+      const { id, name, address, neighborhood, votes, imageUrl } = coffeeShop;
+      const response = await fetch('/api/createCoffeeShop', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,
+          name,
+          address: address || '',
+          neighborhood: neighborhood[0] || '',
+          votes: 0,
+          imageUrl,
+        }),
+      });
+      const coffeeShopDb = response.json();
+      console.log(coffeeShopDb);
+    } catch (err) {
+      console.error('Error creating coffee shop', err);
+    }
+  };
+
   useEffect(() => {
     if (isEmpty(initialProps.coffeeShop)) {
       if (coffeeShops.length > 0) {
-        const findCoffeeShopsById = coffeeShops.find((coffeeShop) => {
-          return coffeeShop.id.toString() === pid;
+        const coffeeShopFromContext = coffeeShops.find((coffeeShop) => {
+          return coffeeShop.id.toString() === id;
         });
-        setCoffeeShop(findCoffeeShopsById);
-      }
-    }
-  }, [pid]);
 
-  const { address, imageUrl, name, neighborhood, phoneNumber } =
-    initialProps.coffeeShop;
+        if (coffeeShopFromContext) {
+          setCoffeeShop(coffeeShopFromContext);
+          onHandleCreateCoffeeShop(coffeeShopFromContext);
+        }
+      }
+    } else {
+      onHandleCreateCoffeeShop(initialProps.coffeeShop);
+    }
+  }, [id, initialProps, initialProps.coffeeShop, coffeeShops]);
+
+  const { address, imageUrl, name, neighborhood } = coffeeShop;
 
   const onHandleUpVote = () => {
     console.log('up vote');

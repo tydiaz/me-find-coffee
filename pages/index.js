@@ -30,12 +30,12 @@ export default function Home(props) {
   console.log({ coordinates, locationErrorMessage });
 
   useEffect(() => {
-    async function getCoffeeShops() {
+    const getCoffeeShops = async () => {
       if (coordinates) {
         try {
           const coffeeShopsApi = `/api/getCoffeeShopsByLocation?coords=${coordinates}&limit=30`;
           const fetchedCoffeeShops = await fetch(coffeeShopsApi);
-          const coffeeShops = await fetchCoffeeShops.json();
+          const coffeeShops = await fetchedCoffeeShops.json();
 
           console.log({ fetchedCoffeeShops });
           // setCoffeeShops(fetchedCoffeeShops);
@@ -51,7 +51,7 @@ export default function Home(props) {
           setErrorMessage(error.message);
         }
       }
-    }
+    };
     getCoffeeShops();
   }, [coordinates, dispatch]);
 
