@@ -3,17 +3,15 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import useSWR from 'swr';
 import cls from 'classnames';
 import { StoreContext } from '../../store/store-context';
-import { isEmpty } from '../../utils';
+import { fetcher, isEmpty } from '../../utils';
 import { fetchCoffeeShops } from '../../lib/coffee-shops';
 import styles from '../../styles/CoffeeShop.module.css';
 
 export async function getStaticProps(staticProps) {
   const params = staticProps.params;
-
-  console.log('params', params);
-
   const coffeeShops = await fetchCoffeeShops();
   const findCoffeeShopsById = coffeeShops.find((coffeeShop) => {
     return coffeeShop.id.toString() === params.id;
@@ -45,12 +43,8 @@ const CoffeeShop = (initialProps) => {
   const router = useRouter();
   const id = router.query.id;
 
-  // console.log(router.query);
-  // console.log(pid);
-  console.log('props', initialProps.coffeeShop);
-
-  const [coffeeShop, setCoffeeShop] = useState(initialProps.coffeeShop);
-  // const [coffeeShop, setCoffeeShop] = useState(initialProps.coffeeShop || {});
+  // const [coffeeShop, setCoffeeShop] = useState(initialProps.coffeeShop);
+  const [coffeeShop, setCoffeeShop] = useState(initialProps.coffeeShop || {});
   const {
     state: { coffeeShops },
   } = useContext(StoreContext);
@@ -73,7 +67,6 @@ const CoffeeShop = (initialProps) => {
         }),
       });
       const coffeeShopDb = response.json();
-      console.log(coffeeShopDb);
     } catch (err) {
       console.error('Error creating coffee shop', err);
     }
@@ -97,10 +90,43 @@ const CoffeeShop = (initialProps) => {
   }, [id, initialProps, initialProps.coffeeShop, coffeeShops]);
 
   const { address, imageUrl, name, neighborhood } = coffeeShop;
+  const [voteCount, setVoteCount] = useState(0);
 
-  const onHandleUpVote = () => {
-    console.log('up vote');
+  const { data, error } = useSWR(`/api/getCoffeeShopById?id=${id}`, fetcher);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setCoffeeShop(data[0]);
+      setVoteCount(data[0].votes);
+    }
+  }, [data]);
+
+  const onHandleUpVote = async () => {
+    try {
+      const response = await fetch('/api/rateCoffeeShopById', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,
+        }),
+      });
+      const coffeeShopDb = await response.json();
+
+      if (coffeeShopDb && coffeeShopDb.length > 0) {
+        let count = voteCount + 1;
+        setVoteCount(count);
+      }
+    } catch (err) {
+      console.error('error updating coffee shop rating:', err);
+    }
   };
+
+  if (error) {
+    return <div>Something went wrong retrieving Coffee Shop page!</div>;
+  }
+
   let imgUrl =
     'https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80';
 
@@ -160,7 +186,7 @@ const CoffeeShop = (initialProps) => {
               width={24}
               height={24}
             />
-            <p className={styles.text}>5</p>
+            <p className={styles.text}>{voteCount}</p>
           </div>
           <button className={styles.button} onClick={onHandleUpVote}>
             Up Vote!

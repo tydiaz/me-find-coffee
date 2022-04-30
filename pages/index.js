@@ -19,15 +19,12 @@ export async function getStaticProps(context) {
 }
 
 export default function Home(props) {
-  console.log('props:', props);
   // const [coffeeShops, setCoffeeShops] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const { dispatch, state } = useContext(StoreContext);
   const { coffeeShops, coordinates } = state;
   const { handleGeoLocation, isLoading, locationErrorMessage } =
     useGeoLocation();
-
-  console.log({ coordinates, locationErrorMessage });
 
   useEffect(() => {
     const getCoffeeShops = async () => {
@@ -37,7 +34,6 @@ export default function Home(props) {
           const fetchedCoffeeShops = await fetch(coffeeShopsApi);
           const coffeeShops = await fetchedCoffeeShops.json();
 
-          console.log({ fetchedCoffeeShops });
           // setCoffeeShops(fetchedCoffeeShops);
           dispatch({
             type: ACTION_TYPES.SET_COFFEE_SHOPS,
@@ -47,7 +43,6 @@ export default function Home(props) {
           });
           setErrorMessage('');
         } catch (error) {
-          console.log({ error });
           setErrorMessage(error.message);
         }
       }
@@ -56,7 +51,6 @@ export default function Home(props) {
   }, [coordinates, dispatch]);
 
   const onBannerBtnClick = () => {
-    console.log('banner button');
     handleGeoLocation();
   };
   let imgUrl =

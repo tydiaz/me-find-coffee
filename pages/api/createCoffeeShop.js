@@ -1,26 +1,14 @@
-import { getMinifiedRecords, table } from '../../lib/airtable';
-
-console.log({ table });
+import { findRecordById, getMinifiedRecords, table } from '../../lib/airtable';
 
 const createCoffeeShop = async (req, res) => {
-  console.log({ req });
-
   if (req.method === 'POST') {
     const { id, name, address, neighborhood, votes, imageUrl } = req.body;
 
     try {
       if (id) {
-        const findCoffeeShopRecords = await table
-          .select({
-            filterByFormula: `id="${id}"`,
-          })
-          .firstPage();
+        const coffeeShopRecords = await findRecordById(id);
 
-        console.log({ findCoffeeShopRecords });
-
-        if (findCoffeeShopRecords.length !== 0) {
-          const coffeeShopRecords = getMinifiedRecords(findCoffeeShopRecords);
-
+        if (coffeeShopRecords.length !== 0) {
           res.json(coffeeShopRecords);
         } else {
           if (name) {
@@ -36,7 +24,6 @@ const createCoffeeShop = async (req, res) => {
                 },
               },
             ]);
-
             const records = getMinifiedRecords(createCoffeeShopRecords);
             res.json(records);
           } else {
